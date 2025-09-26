@@ -1,19 +1,17 @@
 # Météo Minimaliste
 
-Une application Flutter simple pour afficher la météo actuelle et les prévisions sur 5 jours pour une ville donnée. Utilise l'API OpenWeatherMap.
+Une application Flutter simple pour afficher la météo actuelle et les prévisions sur 5 jours pour une ville donnée. Utilise l'API Open-Meteo (aucune clé API requise).
 
 ## Fonctionnalités
 - Recherche d'une ville via un champ texte
-- Affichage de la température, de l'humidité et d'une icône météo
-- Fond dynamique selon la météo (soleil, pluie, etc.)
-- Prévisions sur 5 jours (bonus)
+- Affichage de la température, de la vitesse du vent, et de l'humidité (prévisions)
+- Fond dynamique selon la température
+- Prévisions sur 5 jours
 
 ## Prérequis
 - Flutter SDK
-- Clé API OpenWeatherMap
 
 ## Installation
-1. Clonez le dépôt : `git clone https://github.com/votre_utilisateur/meteo_minimaliste.git`
-2. Ajoutez votre clé API dans `.env`
-3. Exécutez `flutter pub get`
-4. Lancez l'app avec `flutter run`
+1. Clonez le dépôt : `git clone https://github.com/ajmanhdjj/meteo_minimaliste.git`
+2. Exécutez `flutter pub get`
+3. Lancez l'app avec `flutter run`
