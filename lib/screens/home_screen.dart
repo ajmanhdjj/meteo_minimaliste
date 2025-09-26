@@ -25,7 +25,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchWeather('Paris');
+    _fetchWeather('Moroni');
   }
 
   @override
@@ -57,7 +57,7 @@ class HomeScreenState extends State<HomeScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = 'Erreur : $e';
         _isLoading = false;
       });
     }
@@ -117,64 +117,61 @@ class HomeScreenState extends State<HomeScreen> {
       body: Container(
         decoration: _getBackground(),
         child: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Champ de recherche avec effet glassmorphism et bordure dynamique
-                Focus(
-                  focusNode: _focusNode,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 400),
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(255, 255, 255, 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: _focusNode.hasFocus
-                            ? const Color.fromRGBO(64, 196, 255, 0.6)
-                            : const Color.fromRGBO(255, 255, 255, 0.3),
-                        width: _focusNode.hasFocus ? 2.5 : 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color.fromRGBO(0, 0, 0, 0.2),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(255, 255, 255, 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: _focusNode.hasFocus
+                          ? const Color.fromRGBO(64, 196, 255, 0.6)
+                          : const Color.fromRGBO(255, 255, 255, 0.3),
+                      width: _focusNode.hasFocus ? 2.5 : 1.5,
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                        child: TextField(
-                          controller: _controller,
-                          focusNode: _focusNode,
-                          decoration: InputDecoration(
-                            hintText: 'Entrez une ville',
-                            hintStyle: GoogleFonts.poppins(
-                              color: const Color.fromRGBO(255, 255, 255, 0.5),
-                              fontWeight: FontWeight.w400,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                Icons.search,
-                                color: _focusNode.hasFocus
-                                    ? Colors.blueAccent
-                                    : const Color.fromRGBO(255, 255, 255, 0.7),
-                              ),
-                              onPressed: () => _fetchWeather(_controller.text),
-                            ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color.fromRGBO(0, 0, 0, 0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Entrez une ville',
+                          hintStyle: GoogleFonts.poppins(
+                            color: const Color.fromRGBO(255, 255, 255, 0.5),
+                            fontWeight: FontWeight.w400,
                           ),
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.search,
+                              color: _focusNode.hasFocus
+                                  ? Colors.blueAccent
+                                  : const Color.fromRGBO(255, 255, 255, 0.7),
+                            ),
+                            onPressed: () => _fetchWeather(_controller.text),
                           ),
-                          onSubmitted: _fetchWeather,
                         ),
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                        onSubmitted: _fetchWeather,
                       ),
                     ),
                   ),
@@ -193,6 +190,17 @@ class HomeScreenState extends State<HomeScreen> {
                       color: Colors.redAccent.shade100,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ).animate().fadeIn(duration: 400.ms, curve: Curves.easeInOut),
+                // Message par défaut si aucune donnée
+                if (_weather == null && _forecast == null && _error.isEmpty && !_isLoading)
+                  Text(
+                    'Aucune donnée disponible. Recherchez une ville.',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
                     ),
                     textAlign: TextAlign.center,
                   ).animate().fadeIn(duration: 400.ms, curve: Curves.easeInOut),
@@ -267,7 +275,6 @@ class HomeScreenState extends State<HomeScreen> {
                         final forecast = _forecast![index];
                         return GestureDetector(
                           onTap: () {
-                            // Animation de surbrillance au tap
                             setState(() {});
                           },
                           child: AnimatedContainer(
