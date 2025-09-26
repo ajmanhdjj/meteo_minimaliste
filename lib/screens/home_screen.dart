@@ -7,25 +7,34 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final WeatherService _weatherService = WeatherService();
   Weather? _weather;
   List<Forecast>? _forecast;
   final TextEditingController _controller = TextEditingController();
   String _error = '';
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchWeather('Paris'); // Ville par défaut
+    _fetchWeather('Paris');
   }
 
   void _fetchWeather(String city) async {
+    if (city.isEmpty) {
+      setState(() {
+        _error = 'Veuillez entrer une ville';
+        _isLoading = false;
+      });
+      return;
+    }
     setState(() {
       _error = '';
+      _isLoading = true;
     });
     try {
       final weather = await _weatherService.getWeather(city);
@@ -33,46 +42,25 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _weather = weather;
         _forecast = forecast;
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _error = 'Ville non trouvée ou erreur API';
+        _error = e.toString();
+        _isLoading = false;
       });
     }
   }
 
-  // Choisir un fond selon la météo
   BoxDecoration _getBackground() {
-    if (_weather == null) {
-      return const BoxDecoration(color: Colors.grey);
-    }
-    final icon = _weather!.icon;
-    if (icon.contains('d')) {
-      return const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue, Colors.yellow],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      );
-    } else if (icon.contains('n')) {
-      return const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.indigo, Colors.grey],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      );
-    } else if (icon.contains('c')) {
-      return const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue, Colors.lightBlue],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      );
-    }
-    return const BoxDecoration(color: Colors.grey);
+    // Pour l'instant, un fond par défaut (à personnaliser plus tard)
+    return const BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.blue, Colors.lightBlue],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    );
   }
 
   @override
@@ -89,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _controller,
                   decoration: InputDecoration(
                     labelText: 'Entrez une ville',
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.search),
                       onPressed: () => _fetchWeather(_controller.text),
@@ -98,36 +86,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   onSubmitted: _fetchWeather,
                 ),
                 const SizedBox(height: 20),
-                if (_error.isNotEmpty)
+                if (_isLoading)
+                  const CircularProgressIndicator(),
+                if (_error.isNotEmpty && !_isLoading)
                   Text(
                     _error,
                     style: const TextStyle(color: Colors.red, fontSize: 16),
                   ),
-                if (_weather != null) ...[
+                if (_weather != null && !_isLoading) ...[
                   Text(
                     _weather!.cityName,
                     style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                  ),
-                  Image.network(
-                    'http://openweathermap.org/img/wn/${_weather!.icon}@2x.png',
-                    width: 100,
-                    height: 100,
                   ),
                   Text(
                     '${_weather!.temperature}°C',
                     style: const TextStyle(fontSize: 48),
                   ),
                   Text(
-                    _weather!.description,
-                    style: const TextStyle(fontSize: 24),
+                    'Vitesse du vent : ${_weather!.windSpeed} km/h',
+                    style: const TextStyle(fontSize: 20),
                   ),
                   Text(
-                    'Humidité : ${_weather!.humidity}%',
+                    'Heure : ${_weather!.time}',
                     style: const TextStyle(fontSize: 20),
                   ),
                 ],
                 const SizedBox(height: 20),
-                if (_forecast != null) ...[
+                if (_forecast != null && !_isLoading) ...[
                   const Text(
                     'Prévisions sur 5 jours',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -147,12 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   '${forecast.date.day}/${forecast.date.month}',
                                   style: const TextStyle(fontSize: 16),
                                 ),
-                                Image.network(
-                                  'http://openweathermap.org/img/wn/${forecast.icon}@2x.png',
-                                  width: 50,
-                                  height: 50,
-                                ),
                                 Text('${forecast.temperature}°C'),
+                                Text('Humidité : ${forecast.humidity}%'),
+                                Text('Vent : ${forecast.windSpeed} km/h'),
                               ],
                             ),
                           ),

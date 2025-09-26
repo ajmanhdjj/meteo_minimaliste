@@ -1,45 +1,22 @@
 class Weather {
-  final String cityName;
-  final double temperature;
-  final int humidity;
-  final String icon;
-  final String description;
+  final String time; // Heure de la donnée
+  final double temperature; // Température à 2m
+  final double windSpeed; // Vitesse du vent à 10m
+  final String cityName; // Nom de la ville (à obtenir via une API de géocodage)
 
   Weather({
+    required this.time,
+    required this.temperature,
+    required this.windSpeed,
     required this.cityName,
-    required this.temperature,
-    required this.humidity,
-    required this.icon,
-    required this.description,
   });
 
-  factory Weather.fromJson(Map<String, dynamic> json) {
+  factory Weather.fromJson(Map<String, dynamic> json, String cityName) {
     return Weather(
-      cityName: json['name'],
-      temperature: json['main']['temp'].toDouble(),
-      humidity: json['main']['humidity'],
-      icon: json['weather'][0]['icon'],
-      description: json['weather'][0]['description'],
-    );
-  }
-}
-
-class Forecast {
-  final DateTime date;
-  final double temperature;
-  final String icon;
-
-  Forecast({
-    required this.date,
-    required this.temperature,
-    required this.icon,
-  });
-
-  factory Forecast.fromJson(Map<String, dynamic> json) {
-    return Forecast(
-      date: DateTime.fromMillisecondsSinceEpoch(json['dt'] * 1000),
-      temperature: json['main']['temp'].toDouble(),
-      icon: json['weather'][0]['icon'],
+      time: json['current']['time'],
+      temperature: json['current']['temperature_2m'].toDouble(),
+      windSpeed: json['current']['wind_speed_10m'].toDouble(),
+      cityName: cityName,
     );
   }
 }
